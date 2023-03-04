@@ -4,7 +4,6 @@ import subprocess
 import os
 import json
 
-
 def get_chat_mapping(chatdb_location):
     conn = sqlite3.connect(chatdb_location)
     cursor = conn.cursor()
@@ -94,13 +93,13 @@ def get_address_book(address_book_location):
     result_set = cursor.fetchall()
 
     #Convert tuples to json
-    json_output = json.dumps([{"FIRST NAME": t[0], "LAST NAME": t[1], "FULL NUMBER": t[2]} for t in result_set])
+    json_output = json.dumps([{"FIRSTNAME": t[0], "LASTNAME": t[1], "FULLNUMBER": t[2]} for t in result_set])
     json_list = json.loads(json_output)
     conn.close()
 
     for obj in json_list:
         # Get the phone number from the object
-        phone = obj["FULL NUMBER"]
+        phone = obj["FULLNUMBER"]
         if phone is None:
             continue
         # Remove all non-numeric characters from the phone number
@@ -113,20 +112,39 @@ def get_address_book(address_book_location):
         # Add the phone number to the object
         obj["NUMBERCLEAN"] = phone
         
-
     new_json_output = json.dumps(json_list)
     return new_json_output
 
+#combine recent messages and address book data
+def combine_data(recent_messages, addressBookData):
+    #convert addressBookData to a list of dictionaries
+    addressBookData = json.loads(addressBookData)
+    #loop through each message
+    for message in recent_messages:
+        phone_number = message["phone_number"]
+        for contact in addressBookData:
+            # if contact does not have property NUMBERCLEAN, skip it
+            if "NUMBERCLEAN" not in contact:
+                continue
+            else:
+                contact_number = contact["NUMBERCLEAN"]
+            #if the phone number from the message matches the phone number from the contact add the names to the message
+            if phone_number == contact_number:
+                message["first_name"] = contact["FIRSTNAME"]
+                message["last_name"] = contact["LASTNAME"]
+    return recent_messages
+
 # ask the user for the location of the database
-chatdb_location = input("Enter the location of the chat database: ")
-#chatdb_location = "/Users/kellygold/Library/Messages/chat.db"
+chatdb_location = input("Enter the absolute path of the chat database: ")
+#chatdb_location = "/Users/<userName>/Library/Messages/chat.db"
 # ask the user for the location of the address book database:
-address_book_location = input("Enter the location of the address book database: ")
-#address_book_location = "/Users/kellygold/Desktop/AddressBook-v22.abcddb"
+address_book_location = input("Enter the absolute path of the address book database : ")
+address_book_location = "~/Library/Application Support/AddressBook/Sources/*/AddressBook-v22.abcddb"
 # ask the user for the number of messages to read
 n = input("Enter the number of messages to read: ")
-
 recent_messages = read_messages(chatdb_location, n)
-print_messages(recent_messages)
+#print_messages(recent_messages)
 addressBookData = get_address_book(address_book_location)
-print(addressBookData)
+#print(addressBookData)
+combined_data = combine_data(recent_messages, addressBookData)
+print_messages(combined_data)

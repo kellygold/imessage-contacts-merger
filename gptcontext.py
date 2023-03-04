@@ -1,7 +1,5 @@
 import sqlite3
 import datetime
-import subprocess
-import os
 import json
 
 def get_chat_mapping(chatdb_location):

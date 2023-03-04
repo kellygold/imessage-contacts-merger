@@ -119,10 +119,10 @@ def get_address_book(address_book_location):
 
 # ask the user for the location of the database
 chatdb_location = input("Enter the location of the chat database: ")
-chatdb_location = "/Users/kellygold/Library/Messages/chat.db"
+#chatdb_location = "/Users/kellygold/Library/Messages/chat.db"
 # ask the user for the location of the address book database:
 address_book_location = input("Enter the location of the address book database: ")
-address_book_location = "/Users/kellygold/Desktop/AddressBook-v22.abcddb"
+#address_book_location = "/Users/kellygold/Desktop/AddressBook-v22.abcddb"
 # ask the user for the number of messages to read
 n = input("Enter the number of messages to read: ")
 
